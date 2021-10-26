@@ -1,0 +1,147 @@
+scalar DateTime
+
+type Query {
+  node(id: ID!): Node
+
+  categories(
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): CategoryConnection
+
+  books(first: Int, after: String, last: Int, before: String): BookConnection
+
+  book(id: Int): Book
+
+  authors(
+    first: Int
+    after: String
+    last: Int
+    before: String
+  ): AuthorConnection
+
+  test: BookResult
+}
+
+type Mutation {
+  updateBook(id: Int!, name: String!): BookResult
+  insertBook(name: String!, author: String!, auth_id: Int!): BookResult
+  deleteBook(id: Int!): BookResult
+
+  updateAuthor(id: Int!, name: String!): AuthorResult
+  insertAuthor(name: String!): AuthorResult
+  deleteAuthor(id: Int!): AuthorResult
+
+  insertCategory(name: String, auth_id: Int, book_id: Int): CategoryResult
+  updateCategory(
+    id: Int
+    name: String
+    auth_id: Int
+    book_id: Int
+  ): CategoryResult
+  deleteCategory(id: Int): CategoryResult
+}
+
+type PageInfo {
+  hasNextPage: Boolean
+  hasPreviousPage: Boolean
+  startCursor: String
+  endCursor: String
+}
+
+#book
+
+type BookConnection {
+  edges: [BookEdge!]!
+  pageInfo: PageInfo
+  total: Int
+}
+
+type BooksResult {
+  error: Boolean
+  result: BookConnection
+}
+
+type BookEdge {
+  node: Book!
+  cursor: String
+}
+
+#author
+
+type AuthorConnection {
+  edges: [AuthorEdge!]!
+  pageInfo: PageInfo
+  total: Int
+}
+
+type AuthorsResult {
+  error: Boolean
+  result: AuthorConnection
+}
+
+type AuthorEdge {
+  node: Author!
+  cursor: String
+}
+
+#category
+type CategoryConnection {
+  edges: [CategoryEdge!]!
+  pageInfo: PageInfo
+  total: Int
+}
+
+type CategoryEdge {
+  node: Category!
+  cursor: String
+}
+
+type CategoriesResult {
+  error: Boolean
+  result: CategoryConnection
+}
+
+type BookResult {
+  result: Book
+}
+
+type AuthorResult {
+  result: [Author]
+}
+
+type CategoryResult {
+  result: Category
+}
+
+#interface
+interface Node {
+  id: ID!
+}
+
+#category
+type Category implements Node {
+  id: ID!
+  name: String
+  authors: [Author]
+  books: [Book]
+}
+
+#category
+type Book implements Node {
+  id: ID!
+  name: String
+  author: String
+  createdAt: DateTime
+  updateAt: DateTime
+  authors: [Author]
+}
+
+#author
+type Author implements Node {
+  id: ID!
+  name: String
+  createdAt: DateTime
+  updateAt: DateTime
+}

@@ -15,7 +15,9 @@ router.post('/signup', async(ctx) => {
         username,
         password: hashPassword,
     };
-    const user = await db('accounts').insert(entity).returning('*');
+    const user = await db('accounts')
+        .insert(entity)
+        .returning('*');
     ctx.body = {
         status: 201,
         messsage: 'signup ok',
@@ -25,12 +27,13 @@ router.post('/signup', async(ctx) => {
 
 router.post('/login', async(ctx, next) => {
     const { username, password } = ctx.request.body;
-    console.log(username, password);
     const [user] = await db('accounts').where({ username });
     const isValid = bcrypt.compare(password, user.password);
     if (isValid) {
         const token = utils.getToken(user.username, user.password, user.role);
         ctx.body = {
+            username,
+
             token,
         };
     } else {

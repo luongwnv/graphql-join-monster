@@ -31,14 +31,14 @@ module.exports = {
     },
 
     async authenticateJWT(ctx, next) {
-        const authorization = ctx.headers.authorization;
-        if (!authorization) {
+        const { authorization: token } = ctx.headers;
+        if (!token) {
             ctx.body = {
                 status: 401,
             };
         } else {
             try {
-                jwt.verify(authorization, secret);
+                jwt.verify(token, secret);
                 await next();
             } catch (error) {
                 ctx.body = {
