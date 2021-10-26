@@ -1,36 +1,23 @@
+const { GraphQLObjectType, GraphQLString, GraphQLInt } = require('graphql');
+const { GraphQLDateTime } = require('graphql-iso-date');
 const {
-    GraphQLObjectType,
-    GraphQLList,
-    GraphQLString,
-    GraphQLInt,
-    GraphQLFloat,
-    GraphQLNonNull,
-} = require('graphql');
-
-const {
-    GraphQLDate,
-    GraphQLTime,
-    GraphQLDateTime,
-} = require('graphql-iso-date');
-
-const {
-    connectionArgs,
     connectionDefinitions,
-    connectionFromArray,
+    globalIdField,
     forwardConnectionArgs,
 } = require('graphql-relay');
 
-const Author = require('./Author');
 const { nodeInterface } = require('./Node');
+const { AuthorConnection } = require('./Author');
 
 const Book = new GraphQLObjectType({
     name: 'Book',
     sqlTable: 'books',
     uniqueKey: 'id',
+    interfaces: [nodeInterface],
     fields: {
         id: {
-            type: GraphQLInt,
-            sqlColumn: 'id',
+            ...globalIdField(),
+            sqlDeps: ['id'],
         },
 
         name: {
@@ -59,12 +46,23 @@ const Book = new GraphQLObjectType({
         },
 
         authors: {
-            type: new GraphQLNonNull(Author),
-            sqlJoin(bookTable, authorTable) {
-                return `${bookTable}.auth_id = ${authorTable}.id`;
+            type: AuthorConnection,
+            sqlPaginate: true,
+            args: forwardConnectionArgs,
+            orderBy: {
+                id: 'desc',
             },
+            sqlJoin: (bookTable, authorTable) =>
+                `${bookTable}.auth_id = ${authorTable}.id`,
         },
     },
 });
 
-module.exports = Book;
+const { connectionType: BookConnection } = connectionDefinitions({
+    nodeType: Book,
+    connectionFields: {
+        total: { type: GraphQLInt },
+    },
+});
+
+module.exports = { Book, BookConnection };

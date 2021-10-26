@@ -1,50 +1,49 @@
-const {
-    GraphQLObjectType,
-    GraphQLList,
-    GraphQLNonNull,
-    GraphQLString,
-    GraphQLInt,
-} = require('graphql');
+const { GraphQLObjectType } = require('graphql');
+const { connectionArgs } = require('graphql-relay');
 
-const joinMonster = require('join-monster').default;
-const Book = require('./Book');
-const Author = require('./Author');
 const { nodeField } = require('./Node');
+const { pagination } = require('../utils/joinMonter');
+const { CategoryConnection } = require('./Category');
+const { AuthorConnection } = require('./Author');
+const { BookConnection } = require('./Book');
 
-const db = require('../db/knex');
-
-module.exports = new GraphQLObjectType({
+const resolver = new GraphQLObjectType({
     description: 'global query object',
+    sqlPaginate: true,
     name: 'Query',
     fields: {
-        version: {
-            type: GraphQLString,
-            resolve: () => joinMonster.version,
-        },
-
         node: nodeField,
 
         books: {
-            type: new GraphQLList(Book),
-            resolve: (parent, args, context, resolveInfo) => {
-                return joinMonster(resolveInfo, context, (sql) => {
-                    return db.raw(sql);
-                });
+            type: BookConnection,
+            args: connectionArgs,
+            resolve: async(parent, args, context, resolveInfo) => {
+                let nameTable = 'books';
+                const data = pagination(nameTable, args, context, resolveInfo);
+                return data;
             },
         },
-        book: {
-            type: new GraphQLList(Book),
-            args: {
-                id: {
-                    type: new GraphQLNonNull(GraphQLInt),
-                },
+
+        authors: {
+            type: AuthorConnection,
+            args: connectionArgs,
+            resolve: async(parent, args, context, resolveInfo) => {
+                let nameTable = 'authors';
+                const data = pagination(nameTable, args, context, resolveInfo);
+                return data;
             },
-            where: (bookTable, args, context) => {
-                return `${bookTable}.id = ${args.id}`;
-            },
-            resolve: (parent, args, context, resolveInfo) => {
-                return joinMonster(resolveInfo, context, (sql) => db.raw(sql));
+        },
+
+        categries: {
+            type: CategoryConnection,
+            args: connectionArgs,
+            resolve: async(parent, args, context, resolveInfo) => {
+                let nameTable = 'categories';
+                const data = pagination(nameTable, args, context, resolveInfo);
+                return data;
             },
         },
     },
 });
+
+module.exports = resolver;

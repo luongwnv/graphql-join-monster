@@ -1,37 +1,37 @@
 const Koa = require('koa');
+const KoaRouter = require('koa-router');
 const graphqlHTTP = require('koa-graphql');
-const mount = require('koa-mount');
-const bodyParser = require('koa-body-parser');
+const koaConvert = require('koa-convert');
 
-const schema = require('./graphql');
+const schema = require('./schema/index');
 const loginRouter = require('./api/login');
 
 const app = new Koa();
+const router = new KoaRouter();
 
-app.use(bodyParser());
+router.post(
+    '/',
+    koaConvert(
+        graphqlHTTP({
+            schema,
+            formatError: (e) => {
+                console.error(e);
+                return e;
+            },
+            context: (ctx) => context(ctx),
+        })
+    )
+);
 
+app.use(router.routes());
+app.use(router.allowedMethods());
 app.use(loginRouter.routes());
 
-const context = async(ctx, next) => {
+const context = (ctx, next) => {
     const { authorization: token } = ctx.headers;
-    console.log(token);
     const userVerified = jwt.verify(token, secret);
     return { userVerified };
 };
-
-app.use(
-    mount(
-        '/',
-        graphqlHTTP(async(ctx) => ({
-            schema,
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json',
-                //token: context(ctx),
-            },
-        }))
-    )
-);
 
 const port = 3000;
 app.listen(port, () =>

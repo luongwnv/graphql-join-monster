@@ -3,18 +3,18 @@ const joinMonster = require('join-monster').default;
 
 const db = require('../db/knex');
 
-const options = { dialect: 'pg' };
-
-const pagination = async(args, context, resolveInfo) => {
+const pagination = async(nameTable, args, context, resolveInfo) => {
     const data = await joinMonster(
         resolveInfo,
         context,
-        async(sql) => {
-            return await db.raw(sql);
-        },
-        options
+        (sql) => {
+            return db.raw(sql);
+        }, { dialect: 'pg' }
     );
-    return data;
+    const [res] = await db(nameTable).count('*');
+    const total = res.count;
+    const entity = { total, ...connectionFromArray(data, args) };
+    return entity;
 };
 
 module.exports = { pagination };
