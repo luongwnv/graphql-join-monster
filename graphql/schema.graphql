@@ -51,7 +51,6 @@ type PageInfo {
 }
 
 #book
-
 type BookConnection {
   edges: [BookEdge!]!
   pageInfo: PageInfo
@@ -69,7 +68,6 @@ type BookEdge {
 }
 
 #author
-
 type AuthorConnection {
   edges: [AuthorEdge!]!
   pageInfo: PageInfo
