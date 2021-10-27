@@ -7,7 +7,6 @@ const pagination = async (tableName, first, after, before) => {
   const total = res.count;
   const id = Base64.decode(after);
   const idBefore = Base64.decode(before);
-  console.log(idBefore);
   let query = db(tableName).where(db.raw(`id > ?`, id));
   if (first) {
     query = query.limit(first);

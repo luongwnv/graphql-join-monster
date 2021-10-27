@@ -43,7 +43,6 @@ joinMonsterAdapt(schema, {
 
       book: {
         where: (table, args) => {
-          console.log(args);
           return `${table}.id=${args.id}`;
         },
       },

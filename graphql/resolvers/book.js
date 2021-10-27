@@ -11,7 +11,6 @@ const resolvers = {
     },
 
     async book(parent, args, ctx, resolveInfo) {
-      console.log(args);
       return joinMonster(
         resolveInfo,
         ctx,

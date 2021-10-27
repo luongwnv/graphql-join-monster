@@ -26,7 +26,6 @@ router.post("/signup", async (ctx) => {
 
 router.post("/login", async (ctx, next) => {
   const { username, password } = ctx.request.body;
-  console.log(username, password);
   const [user] = await db("accounts").where({ username });
   const isValid = bcrypt.compare(password, user.password);
   if (isValid) {
