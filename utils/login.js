@@ -4,7 +4,7 @@ const bcrypt = require("bcrypt");
 const accounts = "accounts";
 
 module.exports = {
-  login: async function (username, password) {
+  login: async (username, password) => {
     const [user] = await db(accounts).where({ username });
     try {
       const validUser = bcrypt.compare(password, user.password);
@@ -18,7 +18,7 @@ module.exports = {
     }
   },
 
-  signup: async function (username, password) {
+  signup: async (username, password) => {
     const hashPassword = bcrypt.hashSync(password, 10);
     const entity = {
       username,
