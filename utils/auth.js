@@ -1,50 +1,50 @@
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
-const secret = 'accesstoken';
+const secret = "accesstoken";
 
 module.exports = {
-    getToken(username, password, role) {
-        try {
-            const payload = {
-                username,
-                password,
-                role,
-            };
-            const token = jwt.sign(payload, secret, {
-                algorithm: 'HS256',
-                noTimestamp: false,
-                expiresIn: '365d',
-            });
-            return token;
-        } catch (error) {
-            console.log(error);
-        }
-    },
+  getToken(username, password, role) {
+    try {
+      const payload = {
+        username,
+        password,
+        role,
+      };
+      const token = jwt.sign(payload, secret, {
+        algorithm: "HS256",
+        noTimestamp: false,
+        expiresIn: "365d",
+      });
+      return token;
+    } catch (error) {
+      console.log(error);
+    }
+  },
 
-    verifyToken(token) {
-        try {
-            const { username } = jwt.verify(token, secret);
-            return { token, username };
-        } catch (error) {
-            console.log(error);
-        }
-    },
+  verifyToken(token) {
+    try {
+      const { username } = jwt.verify(token, secret);
+      return { token, username };
+    } catch (error) {
+      console.log(error);
+    }
+  },
 
-    async authenticateJWT(ctx, next) {
-        const authorization = ctx.headers.authorization;
-        if (!authorization) {
-            ctx.body = {
-                status: 401,
-            };
-        } else {
-            try {
-                jwt.verify(authorization, secret);
-                await next();
-            } catch (error) {
-                ctx.body = {
-                    status: 403,
-                };
-            }
-        }
-    },
+  async authenticateJWT(ctx, next) {
+    const authorization = ctx.headers.authorization;
+    if (!authorization) {
+      ctx.body = {
+        status: 401,
+      };
+    } else {
+      try {
+        jwt.verify(authorization, secret);
+        await next();
+      } catch (error) {
+        ctx.body = {
+          status: 403,
+        };
+      }
+    }
+  },
 };
